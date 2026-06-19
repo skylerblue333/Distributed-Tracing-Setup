@@ -1,3 +1,3 @@
-module github.com/skylerblue333/distributed-tracing-setup
+module github.com/skylerblue333/Distributed-Tracing-Setup
 
 go 1.21
