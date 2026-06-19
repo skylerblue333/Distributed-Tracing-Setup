@@ -1,52 +1,52 @@
 package main
 
 import (
-	"context"
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
+	"sync"
 	"time"
-
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 )
 
-func initTracer() (*sdktrace.TracerProvider, error) {
-	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
-	if err != nil {
-		return nil, err
-	}
+type ServiceState struct {
+	mu        sync.RWMutex
+	Processed int
+	Domain    string
+}
 
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(exporter),
-		sdktrace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceName("demo-service"),
-		)),
-	)
-	otel.SetTracerProvider(tp)
-	return tp, nil
+var state = &ServiceState{Domain: "setup"}
+
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	state.mu.RLock()
+	defer state.mu.RUnlock()
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":    "ok",
+		"domain":    state.Domain,
+		"processed": state.Processed,
+	})
+}
+
+func handleProcess(w http.ResponseWriter, r *http.Request) {
+	state.mu.Lock()
+	state.Processed++
+	state.mu.Unlock()
+	w.WriteHeader(http.StatusAccepted)
+	fmt.Fprint(w, `{"status":"processing"}`)
 }
 
 func main() {
-	tp, err := initTracer()
-	if err != nil {
-		log.Fatal(err)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", handleHealth)
+	mux.HandleFunc("/process", handleProcess)
+
+	server := &http.Server{
+		Addr:         ":8080",
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
-	defer tp.Shutdown(context.Background())
 
-	tracer := otel.Tracer("demo-tracer")
-	ctx, span := tracer.Start(context.Background(), "main-operation")
-	
-	log.Println("Doing work...")
-	time.Sleep(500 * time.Millisecond)
-	
-	_, childSpan := tracer.Start(ctx, "child-operation")
-	time.Sleep(200 * time.Millisecond)
-	childSpan.End()
-
-	span.End()
-	log.Println("Work complete.")
+	log.Println("Server starting on :8080")
+	log.Fatal(server.ListenAndServe())
 }
