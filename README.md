@@ -1,44 +1,54 @@
-<!-- PORTFOLIO PROJECT PROFILE: maintained by the repository owner -->
-
-## Project profile and code-audit snapshot
-
-**What this is:** **Distributed-Tracing-Setup** is a public repository described as: “OpenTelemetry integration examples across microservices. #SkyCoin4444 #AI #Blockchain #DevOps #Innovation” Its dominant language signals are **Go (2 files)**.
-
-**Why it has value:** Its value is best understood through the implementation evidence currently present in the repository: **16 tracked files** were observed in the shallow audit, with the source structure and existing documentation providing the project’s specific context. This README does not treat a prototype, experiment, or archive as a production system without supporting evidence.
-
-**Implementation evidence:** 1 test-related file(s) detected; 2 dependency or package manifest(s) detected; 2 build/CI/infrastructure signal(s) detected; and 3 documentation or governance file(s) detected. Test filenames observed include `main_test.go`. Dependency or package files include `go.mod`, `package.json`. Build, CI, or infrastructure signals include `Dockerfile`, `.github/workflows/ci.yml`.
-
-**Current status:** The repository is tracked on the `main` branch. The existing source tree, configuration, tests, workflows, and documentation remain authoritative for supported behavior and maturity. A code audit is not a production-readiness certification, and the presence of a test or workflow file does not establish that all checks pass.
-
-**Relationship to the wider portfolio:** This repository is one focused component of the broader Skyler Blue Spillers portfolio across AI, software engineering, cloud and DevOps, cybersecurity, blockchain, finance, education, social systems, and creative work. It may provide a service boundary, implementation pattern, experiment, archive, or reusable idea for related repositories. Treat repositories as technical dependencies only where documented interfaces and verified project requirements support that relationship.
-
-**Quality and security note:** No obvious secret-like pattern was detected by the limited static scan; this is not a substitute for a security audit. No TODO/FIXME marker was detected in the scanned text files.
-
----
-
 # Distributed Tracing Setup
 
-![GitHub stars](https://img.shields.io/github/stars/skylerblue333/Distributed-Tracing-Setup?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/skylerblue333/Distributed-Tracing-Setup?style=flat-square)
+Reusable OpenTelemetry tracing adapter for SKYCOIN4444 services.
 
-## 🌟 Overview
-**Distributed-Tracing-Setup** is a professional-grade project within the **SkyCoin4444** ecosystem. It focuses on delivering high-value solutions in the domain of **Go**.
+## Current implementation
 
-## 🚀 Key Features
-- **Scalable Architecture**: Designed for enterprise-level growth and performance.
-- **Modern Standards**: Implements best practices for clean code and maintainability.
-- **Robust Integration**: Built to work seamlessly within modern cloud-native environments.
+- OpenTelemetry Go tracer factory
+- `OTEL_SERVICE_NAME` support with a SKYCOIN4444 default
+- Explicit span creation helper with input validation
+- OpenTelemetry HTTP instrumentation adapter
+- Unit tests for tracing validation and HTTP instrumentation behavior
 
-## 🛠️ Technology Stack
-- **Primary Domain**: Go
-- **Ecosystem**: SkyCoin4444 Digital Platform
+## Ecosystem role
 
-## 📂 Structure
-The project is organized into a modular structure to ensure clarity and ease of development.
+**Infrastructure / Observability → Distributed Tracing Boundary**
 
-## 👨‍💻 Author
-**Skyler Blue Spillers**
-*Professional Chess Player & Software Engineer*
+This repository is a reusable instrumentation component. It is **not** a complete observability platform and does not claim to provide a running collector, storage backend, dashboards, alerting, or production telemetry pipeline by itself.
 
----
-*Powered by SkyCoin4444*
+## Why this is commercially reusable
+
+The component can serve as the tracing foundation for enterprise starter kits covering APIs, ShadowChat, HopeAI, wallets, payments, marketplace workflows, and background jobs. The commercial value comes from integration quality, standardized telemetry, deployment configuration, security, documentation, and actual adoption—not from repository size or generic enterprise claims.
+
+## Truthful status
+
+- OpenTelemetry adapter: **implemented**
+- HTTP instrumentation wrapper: **implemented**
+- Tests: **implemented**
+- Collector/backend: **not included**
+- Dashboards/alerts: **not included**
+- Production telemetry pipeline: **not verified**
+- Paying customers: **not verified**
+- ARR/revenue: **not claimed**
+
+The previous README used broad “professional-grade” and “enterprise-level” claims while the repository audit showed only a small Go implementation and supporting scaffolding. This README reports the verified capability instead. fileciteturn308file0
+
+## Open-source foundation
+
+This implementation intentionally builds on the OpenTelemetry Go ecosystem rather than inventing a proprietary tracing protocol. Third-party licenses and notices must remain compliant with the dependency licenses.
+
+## Production roadmap
+
+1. Standardize trace/resource attributes across SKYCOIN4444 services.
+2. Add OTLP exporter configuration.
+3. Deploy a controlled OpenTelemetry Collector.
+4. Add metrics/log correlation.
+5. Add sampling and PII-safe attribute policies.
+6. Add integration tests for propagated trace context.
+7. Add dashboards and service-level alerts.
+8. Add deployment/rollback verification.
+9. Consolidate the adapter into SKYCOIN4444 Infrastructure.
+
+## License
+
+See the checked-in repository license and applicable third-party dependency licenses.
