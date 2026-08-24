@@ -33,3 +33,9 @@ jobs:
         run: go build ./...
       - name: Build container
         run: docker build -t sky-observe:ci .
+      - name: Verify non-root image
+        run: |
+          user="$(docker image inspect sky-observe:ci --format '{{.Config.User}}')"
+          test -n "$user"
+          test "$user" != "0"
+          test "$user" != "root"
