@@ -30,7 +30,8 @@ func Start(ctx context.Context, tracer trace.Tracer, spanName string) (context.C
 	if spanName == "" {
 		return ctx, trace.SpanFromContext(ctx), errors.New("span name is required")
 	}
-	return tracer.Start(ctx, spanName)
+	spanCtx, span := tracer.Start(ctx, spanName)
+	return spanCtx, span, nil
 }
 
 func HTTPHandler(handler http.Handler, operation string) http.Handler {
