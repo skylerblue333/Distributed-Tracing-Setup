@@ -1,54 +1,69 @@
-# Distributed Tracing Setup
+# Sky Observe
 
-Reusable OpenTelemetry tracing adapter for SKYCOIN4444 services.
+Sky Observe is a bounded, single-node trace intake and query service for the SKYCOIN4444 infrastructure ecosystem.
 
-## Current implementation
+## Verified capabilities
 
-- OpenTelemetry Go tracer factory
-- `OTEL_SERVICE_NAME` support with a SKYCOIN4444 default
-- Explicit span creation helper with input validation
-- OpenTelemetry HTTP instrumentation adapter
-- Unit tests for tracing validation and HTTP instrumentation behavior
+- concurrent-safe in-memory span storage with a configurable hard cap
+- oldest-span eviction when capacity is reached
+- validated trace, span, parent, service and operation identifiers
+- bounded duration, attribute count, attribute value length and request-body size
+- optional constant-time bearer authentication
+- trace lookup by trace ID
+- health, readiness and operational metrics endpoints
+- explicit counters for accepted, rejected and evicted spans
+- graceful HTTP shutdown and server timeouts
+- Go race-detector and vulnerability-scan CI gates
+- non-root distroless container
 
-## Ecosystem role
+## HTTP API
 
-**Infrastructure / Observability → Distributed Tracing Boundary**
+- `GET /healthz`
+- `GET /readyz`
+- `GET /metrics`
+- `POST /api/v1/spans`
+- `GET /api/v1/traces/{trace_id}`
 
-This repository is a reusable instrumentation component. It is **not** a complete observability platform and does not claim to provide a running collector, storage backend, dashboards, alerting, or production telemetry pipeline by itself.
+Example span:
 
-## Why this is commercially reusable
+```json
+{
+  "trace_id": "trace-123",
+  "span_id": "span-456",
+  "service": "orders",
+  "operation": "create_order",
+  "duration_ms": 18,
+  "timestamp": "2026-08-24T04:00:00Z",
+  "status": "ok",
+  "attributes": {"region": "us-east"}
+}
+```
 
-The component can serve as the tracing foundation for enterprise starter kits covering APIs, ShadowChat, HopeAI, wallets, payments, marketplace workflows, and background jobs. The commercial value comes from integration quality, standardized telemetry, deployment configuration, security, documentation, and actual adoption—not from repository size or generic enterprise claims.
+## Run
 
-## Truthful status
+```bash
+go test ./...
+go run .
+```
 
-- OpenTelemetry adapter: **implemented**
-- HTTP instrumentation wrapper: **implemented**
-- Tests: **implemented**
-- Collector/backend: **not included**
-- Dashboards/alerts: **not included**
-- Production telemetry pipeline: **not verified**
-- Paying customers: **not verified**
-- ARR/revenue: **not claimed**
+Configuration:
 
-The previous README used broad “professional-grade” and “enterprise-level” claims while the repository audit showed only a small Go implementation and supporting scaffolding. This README reports the verified capability instead. fileciteturn308file0
+- `HTTP_ADDR` defaults to `:8080`
+- `OBSERVE_MAX_SPANS` defaults to `10000`
+- `OBSERVE_MAX_BODY_BYTES` defaults to `65536`
+- `OBSERVE_API_TOKEN` optionally protects trace ingestion/query endpoints
 
-## Open-source foundation
+Container:
 
-This implementation intentionally builds on the OpenTelemetry Go ecosystem rather than inventing a proprietary tracing protocol. Third-party licenses and notices must remain compliant with the dependency licenses.
+```bash
+docker build -t sky-observe .
+docker run --rm -p 8080:8080 sky-observe
+```
 
-## Production roadmap
+## Architecture boundary
 
-1. Standardize trace/resource attributes across SKYCOIN4444 services.
-2. Add OTLP exporter configuration.
-3. Deploy a controlled OpenTelemetry Collector.
-4. Add metrics/log correlation.
-5. Add sampling and PII-safe attribute policies.
-6. Add integration tests for propagated trace context.
-7. Add dashboards and service-level alerts.
-8. Add deployment/rollback verification.
-9. Consolidate the adapter into SKYCOIN4444 Infrastructure.
+Sky Observe is intentionally a **local trace service**, not a full observability platform. It does not implement OTLP ingestion/export, W3C trace-context propagation, sampling coordination, durable trace storage, distributed collectors, dashboards, alerting, log aggregation, multi-node replication or managed OpenTelemetry compatibility.
 
-## License
+OpenTelemetry Collector/SDK integrations remain the preferred upstream standards for production-scale telemetry. Future integration should use adapters and pinned upstream versions rather than inventing a proprietary telemetry protocol.
 
-See the checked-in repository license and applicable third-party dependency licenses.
+See `PRODUCT.md` and `SECURITY.md` for commercial and security boundaries.
