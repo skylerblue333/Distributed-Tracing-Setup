@@ -1,9 +1,11 @@
-FROM golang:1.21-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o server main.go
-FROM alpine:latest
-WORKDIR /app
-COPY --from=builder /app/server .
+FROM golang:1.25.0-alpine AS build
+WORKDIR /src
+COPY go.mod ./
+COPY main.go ./
+RUN CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o /out/sky-observe ./main.go
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /out/sky-observe /sky-observe
 EXPOSE 8080
-CMD ["./server"]
+USER nonroot:nonroot
+ENTRYPOINT ["/sky-observe"]
